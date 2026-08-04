@@ -5,11 +5,12 @@ Landing page premium para venda e instalação de pisos, com foco em piso viníl
 ## Recursos
 
 - layout responsivo com prioridade para celular;
-- composição 3D leve criada com CSS;
-- animação de montagem das réguas conforme o scroll;
+- hero WebGL com réguas de piso em geometria 3D real;
+- experiência sticky de 320vh controlada pelo scroll;
+- montagem das réguas em cinco fases, com movimento de câmera;
 - calculadora de estimativa sem backend;
 - mensagem dinâmica de orçamento para o WhatsApp;
-- animações com Framer Motion e suporte a `prefers-reduced-motion`;
+- React Three Fiber, Drei e Framer Motion com suporte a `prefers-reduced-motion`;
 - seções de serviços, processo, confiança, FAQ e chamadas para ação.
 
 ## Requisitos

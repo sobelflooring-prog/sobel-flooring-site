@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, stat } from "node:fs/promises";
 import test from "node:test";
 
 const templateRoot = new URL("../", import.meta.url);
@@ -32,26 +32,37 @@ test("server-renders the Sobel Flooring landing page", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Sobel Flooring \| Venda e instalação de pisos<\/title>/i);
-  assert.match(html, /Transforme seu ambiente/);
+  assert.match(html, /Seu ambiente muda/);
   assert.match(html, /Calcular estimativa/);
   assert.match(html, /Sobel Flooring/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
-test("keeps calculator, WhatsApp and motion safeguards in source", async () => {
-  const [landing, css, packageJson] = await Promise.all([
-    readFile(new URL("../app/components/SobelLanding.tsx", import.meta.url), "utf8"),
+test("keeps the WebGL story, calculator and motion safeguards in source", async () => {
+  const [calculator, config, story, scene, css, packageJson, socialImage] = await Promise.all([
+    readFile(new URL("../app/components/EstimateCalculator.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/site-config.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/ScrollFloorExperience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/FloorSceneCanvas.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
+    stat(new URL("../public/og.png", import.meta.url)),
   ]);
 
-  assert.match(landing, /5511989357411/);
-  assert.match(landing, /Com instalação" \? 100 : 70/);
-  assert.match(landing, /parsedArea <= 0/);
-  assert.match(landing, /Estimativa inicial:/);
-  assert.match(landing, /encodeURIComponent\(message\)/);
+  assert.match(config, /5511989357411/);
+  assert.match(calculator, /Com instalação" \? 100 : 70/);
+  assert.match(calculator, /parsedArea <= 0/);
+  assert.match(calculator, /Estimativa inicial:/);
+  assert.match(calculator, /encodeURIComponent\(message\)/);
+  assert.match(story, /ScrollFloorExperience/);
+  assert.match(scene, /RoundedBox/);
+  assert.match(scene, /progress\.get\(\)/);
+  assert.match(scene, /camera\.position\.lerp/);
+  assert.match(css, /\.floor-experience\s*\{[^}]*height:\s*320vh/s);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(packageJson, /"framer-motion"/);
+  assert.match(packageJson, /"@react-three\/fiber"/);
+  assert.ok(socialImage.size > 100_000);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
