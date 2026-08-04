@@ -31,7 +31,7 @@ test("server-renders the Sobel Flooring landing page", async () => {
 });
 
 test("keeps the 3D stories, official estimator rules and motion safeguards in source", async () => {
-  const [calculator, config, story, scene, heatedExperience, heatedScene, about, reviews, css, packageJson, socialImage, logo, texture] = await Promise.all([
+  const [calculator, config, story, scene, heatedExperience, heatedScene, about, reviews, landing, css, packageJson, socialImage, logo, headerLogo, texture] = await Promise.all([
     readFile(new URL("../app/components/EstimateCalculator.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ScrollFloorExperience.tsx", import.meta.url), "utf8"),
@@ -40,10 +40,12 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
     readFile(new URL("../app/components/HeatedFloorCanvas.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/AboutSection.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ReviewsSection.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/SobelLanding.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     stat(new URL("../public/og-heated.png", import.meta.url)),
     stat(new URL("../public/sobel-flooring-logo.webp", import.meta.url)),
+    stat(new URL("../public/sobel-header-logo.webp", import.meta.url)),
     stat(new URL("../public/vinyl-grain.jpg", import.meta.url)),
   ]);
 
@@ -71,6 +73,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(reviews, /Avaliar empresa/);
   assert.match(reviews, /google\.com\/search\?q=Sobel\+Flooring/);
   assert.match(reviews, /Sobel\+Flooring\+avalia%C3%A7%C3%B5es/);
+  assert.match(landing, /sobel-header-logo\.webp/);
   assert.match(css, /\.floor-experience\s*\{[^}]*height:\s*320vh/s);
   assert.match(css, /\.heated-stage/);
   assert.match(css, /linear-gradient\(105deg, #405de6/);
@@ -79,6 +82,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(packageJson, /"@react-three\/fiber"/);
   assert.ok(socialImage.size > 100_000);
   assert.ok(logo.size > 10_000);
+  assert.ok(headerLogo.size > 5_000);
   assert.ok(texture.size > 10_000);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
