@@ -57,6 +57,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(calculator, /Este orçamento é apenas uma estimativa inicial e não substitui um orçamento oficial\./);
   assert.match(calculator, /Solicitar orçamento oficial pelo WhatsApp/);
   assert.match(calculator, /encodeURIComponent\(whatsappMessage\)/);
+  assert.match(calculator, /instagram\.com\/sobelfloorin\//);
   assert.match(story, /ScrollFloorExperience/);
   assert.match(scene, /RoundedBox/);
   assert.match(scene, /progress\.get\(\)/);

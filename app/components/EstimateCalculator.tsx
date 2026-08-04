@@ -99,7 +99,7 @@ export function EstimateCalculator() {
             <div key={label}><span>{label}</span><strong>{formatBRL(data.base)} / m²</strong></div>
           ))}
         </div>
-        <a className="instagram-button" href="https://www.instagram.com/" target="_blank" rel="noreferrer">
+        <a className="instagram-button" href="https://www.instagram.com/sobelfloorin/" target="_blank" rel="noreferrer">
           <InstagramIcon /> Ver projetos no Instagram <ArrowRight size={16} aria-hidden="true" />
         </a>
       </div>
