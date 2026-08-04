@@ -31,7 +31,7 @@ test("server-renders the Sobel Flooring landing page", async () => {
 });
 
 test("keeps the 3D stories, official estimator rules and motion safeguards in source", async () => {
-  const [calculator, config, story, scene, heatedExperience, heatedScene, about, reviews, landing, css, packageJson, socialImage, logo, headerLogo, texture] = await Promise.all([
+  const [calculator, config, story, scene, heatedExperience, heatedScene, about, reviews, landing, mobilePerformance, css, packageJson, socialImage, logo, headerLogo, texture] = await Promise.all([
     readFile(new URL("../app/components/EstimateCalculator.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ScrollFloorExperience.tsx", import.meta.url), "utf8"),
@@ -41,6 +41,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
     readFile(new URL("../app/components/AboutSection.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ReviewsSection.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/SobelLanding.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/useMobilePerformanceMode.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     stat(new URL("../public/og-heated.png", import.meta.url)),
@@ -75,7 +76,15 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(reviews, /google\.com\/search\?q=Sobel\+Flooring/);
   assert.match(reviews, /Sobel\+Flooring\+avalia%C3%A7%C3%B5es/);
   assert.match(landing, /sobel-header-logo\.webp/);
+  assert.match(landing, /aria-controls="mobile-navigation"/);
+  assert.match(landing, /aria-expanded=\{menuOpen\}/);
+  assert.match(mobilePerformance, /max-width: 900px/);
+  assert.match(scene, /frameloop=\{mobilePerformanceMode \? "demand" : "always"\}/);
+  assert.match(heatedScene, /frameloop=\{mobilePerformanceMode \? "demand" : "always"\}/);
   assert.match(css, /\.floor-experience\s*\{[^}]*height:\s*320vh/s);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.floor-experience\s*\{\s*height:\s*235vh/);
+  assert.match(css, /@media \(max-width: 380px\)/);
+  assert.match(css, /\.menu-toggle/);
   assert.match(css, /\.heated-stage/);
   assert.match(css, /linear-gradient\(105deg, #405de6/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);

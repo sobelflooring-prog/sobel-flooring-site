@@ -1,9 +1,11 @@
 "use client";
 
-import { useReducedMotion } from "framer-motion";
+import { useInView, useReducedMotion } from "framer-motion";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useRef } from "react";
 import { WHATSAPP_URL } from "./site-config";
+import { useMobilePerformanceMode } from "./useMobilePerformanceMode";
 
 const HeroSceneCanvas = dynamic(
   () => import("./HeroSceneCanvas").then((module) => module.HeroSceneCanvas),
@@ -11,12 +13,17 @@ const HeroSceneCanvas = dynamic(
 );
 
 export function Hero3D() {
+  const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = Boolean(useReducedMotion());
+  const mobilePerformanceMode = useMobilePerformanceMode();
+  const isNearViewport = useInView(sectionRef, { margin: "160px 0px" });
 
   return (
-    <section id="inicio" className="hero3d">
+    <section id="inicio" ref={sectionRef} className="hero3d">
       <div className="hero3d-canvas" aria-hidden="true">
-        <HeroSceneCanvas reducedMotion={reducedMotion} />
+        {!mobilePerformanceMode || isNearViewport ? (
+          <HeroSceneCanvas reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
+        ) : null}
       </div>
 
       <div className="hero3d-vignette" aria-hidden="true" />

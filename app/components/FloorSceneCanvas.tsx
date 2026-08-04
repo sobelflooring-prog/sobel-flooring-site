@@ -3,7 +3,7 @@
 import { ContactShadows, RoundedBox } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { MotionValue } from "framer-motion";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 type PlankSpec = {
@@ -32,15 +32,22 @@ function smoothstep(edge0: number, edge1: number, value: number) {
   return x * x * (3 - 2 * x);
 }
 
-function StoryScene({ progress, reducedMotion }: { progress: MotionValue<number>; reducedMotion: boolean }) {
+function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progress: MotionValue<number>; reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   const group = useRef<THREE.Group>(null);
   const boardRefs = useRef<(THREE.Mesh | null)[]>([]);
   const subfloorMaterial = useRef<THREE.MeshStandardMaterial>(null);
   const fogRef = useRef<THREE.Fog>(null);
   const backgroundRef = useRef<THREE.Color>(null);
-  const { size } = useThree();
-  const mobile = size.width < 720;
-  const boardCount = mobile ? 10 : 15;
+  const { invalidate, size } = useThree();
+  const mobile = mobilePerformanceMode || size.width < 720;
+  const boardCount = mobilePerformanceMode ? 8 : mobile ? 10 : 15;
+
+  useEffect(() => {
+    if (!mobilePerformanceMode) return;
+    const unsubscribe = progress.on("change", () => invalidate());
+    invalidate();
+    return unsubscribe;
+  }, [invalidate, mobilePerformanceMode, progress]);
 
   const specs = useMemo<PlankSpec[]>(() => Array.from({ length: boardCount }, (_, index) => {
     const row = Math.floor(index / (mobile ? 2 : 3));
@@ -72,8 +79,8 @@ function StoryScene({ progress, reducedMotion }: { progress: MotionValue<number>
     boardRefs.current.forEach((board, index) => {
       if (!board) return;
       const spec = specs[index];
-      const floatingY = reducedMotion ? 0 : Math.sin(time * 0.7 + index * 0.68) * 0.16 * (1 - align);
-      const driftX = reducedMotion ? 0 : Math.sin(time * 0.35 + index) * 0.08 * (1 - approach);
+      const floatingY = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.7 + index * 0.68) * 0.16 * (1 - align);
+      const driftX = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.35 + index) * 0.08 * (1 - approach);
       board.position.x = THREE.MathUtils.lerp(spec.initial[0] + driftX, spec.target[0], approach);
       board.position.y = THREE.MathUtils.lerp(spec.initial[1] + floatingY, spec.target[1], approach);
       board.position.z = THREE.MathUtils.lerp(spec.initial[2], spec.target[2], approach);
@@ -99,7 +106,8 @@ function StoryScene({ progress, reducedMotion }: { progress: MotionValue<number>
       cameraTarget.set(THREE.MathUtils.lerp(6.3, 0.8, t), THREE.MathUtils.lerp(5.7, 6.3, t), THREE.MathUtils.lerp(9.5, 9.2, t));
       lookTarget.set(0, THREE.MathUtils.lerp(0.6, 0, t), THREE.MathUtils.lerp(0, -0.1, t));
     }
-    camera.position.lerp(cameraTarget, 0.06);
+    if (mobilePerformanceMode) camera.position.copy(cameraTarget);
+    else camera.position.lerp(cameraTarget, 0.06);
     camera.lookAt(lookTarget);
     backgroundColor.lerpColors(backgroundStart, backgroundEnd, finish);
     if (backgroundRef.current) backgroundRef.current.copy(backgroundColor);
@@ -112,29 +120,35 @@ function StoryScene({ progress, reducedMotion }: { progress: MotionValue<number>
       <fog ref={fogRef} attach="fog" args={["#151513", 14, 29]} />
       <ambientLight intensity={0.58} />
       <hemisphereLight args={["#fff0da", "#171411", 1.35]} />
-      <directionalLight position={[5, 11, 7]} intensity={2.8} color="#ffe2bd" castShadow shadow-mapSize-width={mobile ? 512 : 1024} shadow-mapSize-height={mobile ? 512 : 1024} shadow-camera-far={28} shadow-camera-left={-10} shadow-camera-right={10} shadow-camera-top={10} shadow-camera-bottom={-10} shadow-bias={-0.00018} />
+      <directionalLight position={[5, 11, 7]} intensity={2.8} color="#ffe2bd" castShadow={!mobilePerformanceMode} shadow-mapSize-width={mobile ? 512 : 1024} shadow-mapSize-height={mobile ? 512 : 1024} shadow-camera-far={28} shadow-camera-left={-10} shadow-camera-right={10} shadow-camera-top={10} shadow-camera-bottom={-10} shadow-bias={-0.00018} />
       <pointLight position={[-8, 4, 3]} intensity={24} distance={18} color="#c75f2f" />
       <spotLight position={[2, 10, -7]} angle={0.48} penumbra={0.85} intensity={13} distance={26} color="#fff2dd" />
       <group ref={group}>
         {specs.map((spec, index) => (
-          <RoundedBox key={index} ref={(mesh) => { boardRefs.current[index] = mesh; }} args={[mobile ? 3.35 : 4.05, 0.18, 0.76]} radius={0.04} smoothness={2} position={spec.initial} rotation={spec.initialRotation} castShadow receiveShadow>
+          <RoundedBox key={index} ref={(mesh) => { boardRefs.current[index] = mesh; }} args={[mobile ? 3.35 : 4.05, 0.18, 0.76]} radius={0.04} smoothness={2} position={spec.initial} rotation={spec.initialRotation} castShadow={!mobilePerformanceMode} receiveShadow={!mobilePerformanceMode}>
             <meshStandardMaterial color={spec.color} roughness={0.48} metalness={0.035} />
           </RoundedBox>
         ))}
       </group>
-      <mesh position={[0, -0.035, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh position={[0, -0.035, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow={!mobilePerformanceMode}>
         <planeGeometry args={[mobile ? 10.5 : 15.5, 8.2]} />
         <meshStandardMaterial ref={subfloorMaterial} color="#7f766a" transparent opacity={0.04} roughness={0.9} />
       </mesh>
-      <ContactShadows position={[0, 0.02, 0]} opacity={0.42} scale={18} blur={2.2} far={5} />
+      {mobilePerformanceMode ? null : <ContactShadows position={[0, 0.02, 0]} opacity={0.42} scale={18} blur={2.2} far={5} />}
     </>
   );
 }
 
-export function FloorSceneCanvas({ progress, reducedMotion }: { progress: MotionValue<number>; reducedMotion: boolean }) {
+export function FloorSceneCanvas({ progress, reducedMotion, mobilePerformanceMode }: { progress: MotionValue<number>; reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   return (
-    <Canvas shadows dpr={[1, 1.45]} camera={{ position: [9.4, 7.6, 14.5], fov: 36, near: 0.1, far: 70 }} gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}>
-      <StoryScene progress={progress} reducedMotion={reducedMotion} />
+    <Canvas
+      shadows={!mobilePerformanceMode}
+      dpr={mobilePerformanceMode ? 1 : [1, 1.45]}
+      frameloop={mobilePerformanceMode ? "demand" : "always"}
+      camera={{ position: [9.4, 7.6, 14.5], fov: 36, near: 0.1, far: 70 }}
+      gl={{ antialias: !mobilePerformanceMode, alpha: false, powerPreference: "high-performance" }}
+    >
+      <StoryScene progress={progress} reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
     </Canvas>
   );
 }

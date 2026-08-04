@@ -1,9 +1,10 @@
 "use client";
 
-import { useReducedMotion } from "framer-motion";
+import { useInView, useReducedMotion } from "framer-motion";
 import { Minus, Plus, ThermometerSun } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useMobilePerformanceMode } from "./useMobilePerformanceMode";
 
 const HeatedFloorCanvas = dynamic(
   () => import("./HeatedFloorCanvas").then((module) => module.HeatedFloorCanvas),
@@ -11,12 +12,15 @@ const HeatedFloorCanvas = dynamic(
 );
 
 export function HeatedFloorExperience() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [temperature, setTemperature] = useState(24);
   const reducedMotion = Boolean(useReducedMotion());
+  const mobilePerformanceMode = useMobilePerformanceMode();
+  const isNearViewport = useInView(sectionRef, { margin: "320px 0px" });
   const heatLevel = ((temperature - 18) / 14) * 100;
 
   return (
-    <section id="piso-aquecido" className="heated-section">
+    <section id="piso-aquecido" ref={sectionRef} className="heated-section">
       <div className="heated-heading">
         <div>
           <p className="section-kicker">Tecnologia sob o acabamento</p>
@@ -30,7 +34,9 @@ export function HeatedFloorExperience() {
 
       <div className="heated-stage">
         <div className="heated-canvas" aria-label="Modelo 3D em camadas de um sistema de piso aquecido">
-          <HeatedFloorCanvas temperature={temperature} reducedMotion={reducedMotion} />
+          {!mobilePerformanceMode || isNearViewport ? (
+            <HeatedFloorCanvas temperature={temperature} reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
+          ) : null}
         </div>
         <div className="heated-stage-vignette" aria-hidden="true" />
 

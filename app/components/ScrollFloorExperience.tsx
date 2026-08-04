@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, type MotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, type MotionValue, useInView, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import { type ReactNode, useRef } from "react";
 import { WHATSAPP_URL } from "./site-config";
+import { useMobilePerformanceMode } from "./useMobilePerformanceMode";
 
 const FloorSceneCanvas = dynamic(
   () => import("./FloorSceneCanvas").then((module) => module.FloorSceneCanvas),
@@ -48,6 +49,8 @@ function PhaseCopy({
 export function ScrollFloorExperience() {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = Boolean(useReducedMotion());
+  const mobilePerformanceMode = useMobilePerformanceMode();
+  const isNearViewport = useInView(sectionRef, { margin: "240px 0px" });
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 92, damping: 26, mass: 0.35 });
   const progress = reducedMotion ? scrollYProgress : smoothProgress;
@@ -57,7 +60,9 @@ export function ScrollFloorExperience() {
     <section id="experiencia-3d" ref={sectionRef} className="floor-experience">
       <div className="floor-experience-sticky">
         <div className="floor-canvas" aria-hidden="true">
-          <FloorSceneCanvas progress={progress} reducedMotion={reducedMotion} />
+          {!mobilePerformanceMode || isNearViewport ? (
+            <FloorSceneCanvas progress={progress} reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
+          ) : null}
         </div>
         <div className="floor-overlay" aria-hidden="true" />
 

@@ -46,13 +46,17 @@ function HeroPlank({
   );
 }
 
-function Scene({ reducedMotion }: { reducedMotion: boolean }) {
+function Scene({ reducedMotion, mobilePerformanceMode }: { reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   const group = useRef<THREE.Group>(null);
   const { size } = useThree();
   const cameraTarget = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ pointer, clock, camera }) => {
     if (!group.current) return;
+    if (mobilePerformanceMode) {
+      camera.lookAt(0, 1.7, 0);
+      return;
+    }
     const time = clock.getElapsedTime();
     const mobile = size.width < 640;
     const pointerX = reducedMotion ? 0 : pointer.x;
@@ -79,20 +83,32 @@ function Scene({ reducedMotion }: { reducedMotion: boolean }) {
       <color attach="background" args={["#e8e1d5"]} />
       <fog attach="fog" args={["#e8e1d5", 13, 24]} />
       <ambientLight intensity={1.25} />
-      <directionalLight position={[5, 9, 7]} intensity={2.7} color="#fff3df" castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.00015} />
+      <directionalLight position={[5, 9, 7]} intensity={2.7} color="#fff3df" castShadow={!mobilePerformanceMode} shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.00015} />
       <pointLight position={[-5, 2, 4]} intensity={13} distance={13} color="#d76f38" />
-      <group ref={group} position={[1.25, 0, 0]}>
-        {heroPlanks.map((plank, index) => <HeroPlank key={index} {...plank} reducedMotion={reducedMotion} />)}
+      <group
+        ref={group}
+        position={mobilePerformanceMode ? [0, 2, 0] : [1.25, 0, 0]}
+        rotation={mobilePerformanceMode ? [0.06, -0.32, 0] : [0, 0, 0]}
+        scale={mobilePerformanceMode ? 0.7 : 1}
+      >
+        {heroPlanks.map((plank, index) => <HeroPlank key={index} {...plank} reducedMotion={reducedMotion || mobilePerformanceMode} />)}
       </group>
-      <ContactShadows position={[0, -2.05, 0]} opacity={0.3} scale={15} blur={2.8} far={8} />
+      {mobilePerformanceMode ? null : <ContactShadows position={[0, -2.05, 0]} opacity={0.3} scale={15} blur={2.8} far={8} />}
     </>
   );
 }
 
-export function HeroSceneCanvas({ reducedMotion }: { reducedMotion: boolean }) {
+export function HeroSceneCanvas({ reducedMotion, mobilePerformanceMode }: { reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   return (
-    <Canvas shadows dpr={[1, 1.5]} camera={{ position: [7.8, 4.8, 11.8], fov: 34, near: 0.1, far: 60 }} gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}>
-      <Scene reducedMotion={reducedMotion} />
+    <Canvas
+      key={mobilePerformanceMode ? "mobile" : "desktop"}
+      shadows={!mobilePerformanceMode}
+      dpr={mobilePerformanceMode ? 1 : [1, 1.5]}
+      frameloop={mobilePerformanceMode ? "demand" : "always"}
+      camera={{ position: mobilePerformanceMode ? [5.8, 5.2, 13.8] : [7.8, 4.8, 11.8], fov: mobilePerformanceMode ? 42 : 34, near: 0.1, far: 60 }}
+      gl={{ antialias: !mobilePerformanceMode, alpha: false, powerPreference: "high-performance" }}
+    >
+      <Scene reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
     </Canvas>
   );
 }

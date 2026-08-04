@@ -25,13 +25,13 @@ function createSerpentineCurve() {
   return new THREE.CatmullRomCurve3(points, false, "centripetal", 0.45);
 }
 
-function HeatedFloorModel({ temperature, reducedMotion }: { temperature: number; reducedMotion: boolean }) {
+function HeatedFloorModel({ temperature, reducedMotion, mobilePerformanceMode }: { temperature: number; reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   const group = useRef<THREE.Group>(null);
   const cableMaterial = useRef<THREE.MeshStandardMaterial>(null);
   const glowMaterial = useRef<THREE.MeshBasicMaterial>(null);
   const heatLight = useRef<THREE.PointLight>(null);
-  const { size } = useThree();
-  const mobile = size.width < 680;
+  const { invalidate, size } = useThree();
+  const mobile = mobilePerformanceMode || size.width < 680;
   const sourceTexture = useTexture("/vinyl-grain.jpg");
   const texture = useMemo(() => {
     const clonedTexture = sourceTexture.clone();
@@ -44,8 +44,8 @@ function HeatedFloorModel({ temperature, reducedMotion }: { temperature: number;
     return clonedTexture;
   }, [sourceTexture]);
   const cableCurve = useMemo(() => createSerpentineCurve(), []);
-  const cableGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, 220, 0.085, 10, false), [cableCurve]);
-  const glowGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, 220, 0.15, 8, false), [cableCurve]);
+  const cableGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, mobilePerformanceMode ? 96 : 220, 0.085, mobilePerformanceMode ? 6 : 10, false), [cableCurve, mobilePerformanceMode]);
+  const glowGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, mobilePerformanceMode ? 96 : 220, 0.15, mobilePerformanceMode ? 5 : 8, false), [cableCurve, mobilePerformanceMode]);
   const neutralColor = useMemo(() => new THREE.Color("#5b5c59"), []);
   const hotColor = useMemo(() => new THREE.Color("#ff4b22"), []);
   const liveColor = useMemo(() => new THREE.Color(), []);
@@ -59,29 +59,40 @@ function HeatedFloorModel({ temperature, reducedMotion }: { temperature: number;
     };
   }, [cableGeometry, glowGeometry, texture]);
 
+  useEffect(() => {
+    if (mobilePerformanceMode) invalidate();
+  }, [invalidate, mobilePerformanceMode, temperature]);
+
   useFrame(({ clock, pointer }) => {
     const time = clock.getElapsedTime();
     liveColor.lerpColors(neutralColor, hotColor, heatLevel);
 
     if (cableMaterial.current) {
-      cableMaterial.current.color.lerp(liveColor, 0.09);
-      cableMaterial.current.emissive.lerp(liveColor, 0.09);
+      if (mobilePerformanceMode) {
+        cableMaterial.current.color.copy(liveColor);
+        cableMaterial.current.emissive.copy(liveColor);
+      } else {
+        cableMaterial.current.color.lerp(liveColor, 0.09);
+        cableMaterial.current.emissive.lerp(liveColor, 0.09);
+      }
       cableMaterial.current.emissiveIntensity = THREE.MathUtils.lerp(0.06, 2.8, heatLevel);
     }
     if (glowMaterial.current) {
-      glowMaterial.current.color.lerp(liveColor, 0.08);
+      if (mobilePerformanceMode) glowMaterial.current.color.copy(liveColor);
+      else glowMaterial.current.color.lerp(liveColor, 0.08);
       glowMaterial.current.opacity = THREE.MathUtils.lerp(0.015, 0.2, heatLevel);
     }
     if (heatLight.current) {
       heatLight.current.intensity = THREE.MathUtils.lerp(0, 34, heatLevel);
-      heatLight.current.color.lerp(liveColor, 0.08);
+      if (mobilePerformanceMode) heatLight.current.color.copy(liveColor);
+      else heatLight.current.color.lerp(liveColor, 0.08);
     }
     if (group.current) {
-      const targetY = reducedMotion ? 0.07 : pointer.x * 0.08;
-      const targetX = reducedMotion ? -0.04 : -0.04 - pointer.y * 0.045;
+      const targetY = reducedMotion || mobilePerformanceMode ? 0.07 : pointer.x * 0.08;
+      const targetX = reducedMotion || mobilePerformanceMode ? -0.04 : -0.04 - pointer.y * 0.045;
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetY, 0.04);
       group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, targetX, 0.04);
-      group.current.position.y = reducedMotion ? 0 : Math.sin(time * 0.45) * 0.045;
+      group.current.position.y = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.45) * 0.045;
     }
   });
 
@@ -96,7 +107,7 @@ function HeatedFloorModel({ temperature, reducedMotion }: { temperature: number;
 
   return (
     <group ref={group} scale={mobile ? 0.73 : 0.94} position={[mobile ? 0.25 : 0.6, 0, 0]}>
-      <RoundedBox args={[12.9, 0.58, 5.7]} radius={0.16} smoothness={3} position={[0, -1.28, 0]} receiveShadow castShadow>
+      <RoundedBox args={[12.9, 0.58, 5.7]} radius={0.16} smoothness={3} position={[0, -1.28, 0]} receiveShadow={!mobilePerformanceMode} castShadow={!mobilePerformanceMode}>
         <meshStandardMaterial color="#9b9388" roughness={0.93} metalness={0.01} />
       </RoundedBox>
       <RoundedBox args={[12.45, 0.16, 5.22]} radius={0.06} smoothness={2} position={[0, -0.8, 0]} receiveShadow>
@@ -107,7 +118,7 @@ function HeatedFloorModel({ temperature, reducedMotion }: { temperature: number;
         <mesh geometry={glowGeometry}>
           <meshBasicMaterial ref={glowMaterial} color="#625e59" transparent opacity={0.015} depthWrite={false} blending={THREE.AdditiveBlending} />
         </mesh>
-        <mesh geometry={cableGeometry} castShadow>
+        <mesh geometry={cableGeometry} castShadow={!mobilePerformanceMode}>
           <meshStandardMaterial ref={cableMaterial} color="#5b5c59" emissive="#302d29" emissiveIntensity={0.06} roughness={0.32} metalness={0.28} />
         </mesh>
       </group>
@@ -122,32 +133,33 @@ function HeatedFloorModel({ temperature, reducedMotion }: { temperature: number;
             radius={0.035}
             smoothness={2}
             position={[plank.x, 0, plank.z]}
-            castShadow
-            receiveShadow
+            castShadow={!mobilePerformanceMode}
+            receiveShadow={!mobilePerformanceMode}
           >
             <meshStandardMaterial map={texture} color={index % 3 === 0 ? "#f4d8be" : "#ffffff"} roughness={0.52} metalness={0.02} />
           </RoundedBox>
         ))}
       </group>
 
-      <ContactShadows position={[0, -1.58, 0]} opacity={0.45} scale={18} blur={2.6} far={5} />
+      {mobilePerformanceMode ? null : <ContactShadows position={[0, -1.58, 0]} opacity={0.45} scale={18} blur={2.6} far={5} />}
     </group>
   );
 }
 
-export function HeatedFloorCanvas({ temperature, reducedMotion }: { temperature: number; reducedMotion: boolean }) {
+export function HeatedFloorCanvas({ temperature, reducedMotion, mobilePerformanceMode }: { temperature: number; reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   return (
     <Canvas
-      shadows
-      dpr={[1, 1.35]}
+      shadows={!mobilePerformanceMode}
+      dpr={mobilePerformanceMode ? 1 : [1, 1.35]}
+      frameloop={mobilePerformanceMode ? "demand" : "always"}
       camera={{ position: [10.8, 7.4, 12.5], fov: 34, near: 0.1, far: 70 }}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      gl={{ antialias: !mobilePerformanceMode, alpha: true, powerPreference: "high-performance" }}
     >
       <ambientLight intensity={0.75} />
       <hemisphereLight args={["#ffe9cf", "#171513", 1.45]} />
-      <directionalLight position={[5, 11, 8]} intensity={3.7} color="#fff0dc" castShadow shadow-mapSize-width={768} shadow-mapSize-height={768} shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={8} shadow-camera-bottom={-8} shadow-bias={-0.0002} />
+      <directionalLight position={[5, 11, 8]} intensity={3.7} color="#fff0dc" castShadow={!mobilePerformanceMode} shadow-mapSize-width={768} shadow-mapSize-height={768} shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={8} shadow-camera-bottom={-8} shadow-bias={-0.0002} />
       <spotLight position={[-8, 7, 4]} angle={0.42} penumbra={0.9} intensity={19} distance={28} color="#bd6c3f" />
-      <HeatedFloorModel temperature={temperature} reducedMotion={reducedMotion} />
+      <HeatedFloorModel temperature={temperature} reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
     </Canvas>
   );
 }
