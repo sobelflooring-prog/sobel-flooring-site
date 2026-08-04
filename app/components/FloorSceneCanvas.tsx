@@ -37,7 +37,8 @@ function StoryScene({ progress, reducedMotion }: { progress: MotionValue<number>
   const boardRefs = useRef<(THREE.Mesh | null)[]>([]);
   const subfloorMaterial = useRef<THREE.MeshStandardMaterial>(null);
   const fogRef = useRef<THREE.Fog>(null);
-  const { size, scene } = useThree();
+  const backgroundRef = useRef<THREE.Color>(null);
+  const { size } = useThree();
   const mobile = size.width < 720;
   const boardCount = mobile ? 10 : 15;
 
@@ -101,12 +102,13 @@ function StoryScene({ progress, reducedMotion }: { progress: MotionValue<number>
     camera.position.lerp(cameraTarget, 0.06);
     camera.lookAt(lookTarget);
     backgroundColor.lerpColors(backgroundStart, backgroundEnd, finish);
-    scene.background = backgroundColor;
+    if (backgroundRef.current) backgroundRef.current.copy(backgroundColor);
     if (fogRef.current) fogRef.current.color.copy(backgroundColor);
   });
 
   return (
     <>
+      <color ref={backgroundRef} attach="background" args={["#151513"]} />
       <fog ref={fogRef} attach="fog" args={["#151513", 14, 29]} />
       <ambientLight intensity={0.58} />
       <hemisphereLight args={["#fff0da", "#171411", 1.35]} />

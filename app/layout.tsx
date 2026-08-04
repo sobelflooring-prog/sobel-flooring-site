@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
     // Keep the canonical production origin when forwarded headers are invalid.
   }
 
-  const socialImage = new URL("/og.png", origin).toString();
+  const socialImage = new URL("/og-heated.png", origin).toString();
 
   return {
     metadataBase: origin,
@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
         "Venda e instalação de pisos com acabamento profissional e orçamento rápido.",
       type: "website",
       locale: "pt_BR",
-      images: [{ url: socialImage, width: 1200, height: 630, alt: "Sobel Flooring — piso vinílico em movimento" }],
+      images: [{ url: socialImage, width: 1200, height: 630, alt: "Sobel Flooring — camadas 3D de piso vinílico aquecido" }],
     },
     twitter: {
       card: "summary_large_image",

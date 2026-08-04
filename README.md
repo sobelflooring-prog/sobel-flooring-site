@@ -1,17 +1,18 @@
 # Sobel Flooring
 
-Landing page premium para venda e instalação de pisos, com foco em piso vinílico e conversão de pedidos de orçamento pelo WhatsApp.
+Landing page premium para venda e instalação de pisos vinílicos, com foco em conversão de pedidos de orçamento pelo WhatsApp.
 
 ## Recursos
 
 - layout responsivo com prioridade para celular;
-- hero WebGL com réguas de piso em geometria 3D real;
-- experiência sticky de 320vh controlada pelo scroll;
-- montagem das réguas em cinco fases, com movimento de câmera;
-- calculadora de estimativa sem backend;
-- mensagem dinâmica de orçamento para o WhatsApp;
-- React Three Fiber, Drei e Framer Motion com suporte a `prefers-reduced-motion`;
-- seções de serviços, processo, confiança, FAQ e chamadas para ação.
+- hero WebGL com réguas de piso em geometria 3D;
+- experiência de montagem controlada pelo scroll;
+- sistema de piso aquecido em três camadas 3D;
+- termostato interativo que altera temperatura, cor e brilho do cabo em tempo real;
+- simulador de orçamento sem backend, com faixa de preço por sistema;
+- mensagem dinâmica de orçamento oficial para o WhatsApp;
+- seção institucional, avaliações, processo, confiança, FAQ e chamadas para ação;
+- React Three Fiber, Drei e Framer Motion com suporte a `prefers-reduced-motion`.
 
 ## Requisitos
 
@@ -34,9 +35,10 @@ npm run build
 npm test
 ```
 
-## Valores da calculadora
+## Valores do simulador
 
-- com instalação: R$ 100 por m²;
-- sem instalação: R$ 70 por m².
+- Piso Colado 2 mm: base de R$ 150/m², faixa de R$ 140 a R$ 170/m²;
+- Piso Colado 3 mm (Comercial): base de R$ 160/m², faixa de R$ 150 a R$ 175/m²;
+- Piso Clicado 5 mm: base de R$ 200/m², faixa de R$ 190 a R$ 230/m².
 
-Os valores são apenas uma estimativa inicial e podem variar após avaliação técnica.
+As simulações são referências iniciais e não substituem o orçamento oficial.

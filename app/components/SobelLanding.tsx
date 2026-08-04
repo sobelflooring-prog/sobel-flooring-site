@@ -1,11 +1,14 @@
 "use client";
 
 import { MessageCircle } from "lucide-react";
+import { AboutSection } from "./AboutSection";
 import { EstimateCalculator } from "./EstimateCalculator";
 import { FAQSection } from "./FAQSection";
 import { FinalCTA } from "./FinalCTA";
+import { HeatedFloorExperience } from "./HeatedFloorExperience";
 import { Hero3D } from "./Hero3D";
 import { ProcessSection } from "./ProcessSection";
+import { ReviewsSection } from "./ReviewsSection";
 import { ScrollFloorExperience } from "./ScrollFloorExperience";
 import { WHATSAPP_URL } from "./site-config";
 import { TrustSection } from "./TrustSection";
@@ -24,10 +27,10 @@ function Header() {
     <header className="site-header">
       <Brand />
       <nav aria-label="Navegação principal">
-        <a href="#experiencia-3d">Experiência 3D</a>
+        <a href="#quem-somos">Quem somos</a>
+        <a href="#piso-aquecido">Piso aquecido</a>
         <a href="#calculadora">Estimativa</a>
-        <a href="#processo">Processo</a>
-        <a href="#faq">Dúvidas</a>
+        <a href="#avaliacoes">Avaliações</a>
       </nav>
       <a className="header-cta" href={WHATSAPP_URL} target="_blank" rel="noreferrer">Orçamento</a>
     </header>
@@ -53,7 +56,10 @@ export function SobelLanding() {
       <Header />
       <Hero3D />
       <ScrollFloorExperience />
+      <AboutSection />
+      <HeatedFloorExperience />
       <EstimateCalculator />
+      <ReviewsSection />
       <ProcessSection />
       <TrustSection />
       <FAQSection />
