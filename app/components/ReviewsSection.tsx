@@ -18,7 +18,8 @@ const reviews = [
   },
 ];
 
-const googlePlaceholder = "https://www.google.com/";
+const googleSearchUrl = "https://www.google.com/search?q=Sobel+Flooring";
+const googleReviewSearchUrl = "https://www.google.com/search?q=Sobel+Flooring+avalia%C3%A7%C3%B5es";
 
 export function ReviewsSection() {
   return (
@@ -45,8 +46,8 @@ export function ReviewsSection() {
       </div>
 
       <div className="review-actions">
-        <a className="button button-dark" href={googlePlaceholder} target="_blank" rel="noreferrer">Consultar no Google <ArrowUpRight size={16} aria-hidden="true" /></a>
-        <a className="button button-ghost" href={googlePlaceholder} target="_blank" rel="noreferrer">Avaliar empresa <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a className="button button-dark" href={googleSearchUrl} target="_blank" rel="noreferrer">Consultar no Google <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a className="button button-ghost" href={googleReviewSearchUrl} target="_blank" rel="noreferrer">Avaliar empresa <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
     </section>
   );

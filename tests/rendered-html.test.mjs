@@ -69,6 +69,8 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(about, /7 dias úteis/);
   assert.match(reviews, /Consultar no Google/);
   assert.match(reviews, /Avaliar empresa/);
+  assert.match(reviews, /google\.com\/search\?q=Sobel\+Flooring/);
+  assert.match(reviews, /Sobel\+Flooring\+avalia%C3%A7%C3%B5es/);
   assert.match(css, /\.floor-experience\s*\{[^}]*height:\s*320vh/s);
   assert.match(css, /\.heated-stage/);
   assert.match(css, /linear-gradient\(105deg, #405de6/);
