@@ -21,7 +21,7 @@ export function Hero3D() {
   return (
     <section id="inicio" ref={sectionRef} className="hero3d">
       <div className="hero3d-canvas" aria-hidden="true">
-        {!mobilePerformanceMode || isNearViewport ? (
+        {isNearViewport ? (
           <HeroSceneCanvas reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
         ) : null}
       </div>

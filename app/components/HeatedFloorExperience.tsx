@@ -34,7 +34,7 @@ export function HeatedFloorExperience() {
 
       <div className="heated-stage">
         <div className="heated-canvas" aria-label="Modelo 3D em camadas de um sistema de piso aquecido">
-          {!mobilePerformanceMode || isNearViewport ? (
+          {isNearViewport ? (
             <HeatedFloorCanvas temperature={temperature} reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
           ) : null}
         </div>

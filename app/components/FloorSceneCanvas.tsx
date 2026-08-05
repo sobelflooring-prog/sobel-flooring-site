@@ -32,10 +32,19 @@ function smoothstep(edge0: number, edge1: number, value: number) {
   return x * x * (3 - 2 * x);
 }
 
+function samplePath(points: THREE.Vector3[], progress: number, target: THREE.Vector3) {
+  const scaled = THREE.MathUtils.clamp(progress, 0, 1) * (points.length - 1);
+  const index = Math.min(Math.floor(scaled), points.length - 2);
+  const localProgress = smoothstep(0, 1, scaled - index);
+  target.lerpVectors(points[index], points[index + 1], localProgress);
+}
+
 function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progress: MotionValue<number>; reducedMotion: boolean; mobilePerformanceMode: boolean }) {
   const group = useRef<THREE.Group>(null);
   const boardRefs = useRef<(THREE.Mesh | null)[]>([]);
   const subfloorMaterial = useRef<THREE.MeshStandardMaterial>(null);
+  const guideRef = useRef<THREE.GridHelper>(null);
+  const trimGroup = useRef<THREE.Group>(null);
   const fogRef = useRef<THREE.Fog>(null);
   const backgroundRef = useRef<THREE.Color>(null);
   const { invalidate, size } = useThree();
@@ -68,26 +77,53 @@ function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progre
   const backgroundColor = useMemo(() => new THREE.Color(), []);
   const lookTarget = useMemo(() => new THREE.Vector3(), []);
   const cameraTarget = useMemo(() => new THREE.Vector3(), []);
+  const cameraPath = useMemo(() => (mobile ? [
+    new THREE.Vector3(8.8, 8.4, 17),
+    new THREE.Vector3(7.4, 7.7, 15.3),
+    new THREE.Vector3(6.3, 7, 13.7),
+    new THREE.Vector3(5.2, 6.4, 12.2),
+    new THREE.Vector3(4.1, 6.9, 11.1),
+    new THREE.Vector3(2.8, 7.7, 10.4),
+  ] : [
+    new THREE.Vector3(9.4, 7.6, 14.5),
+    new THREE.Vector3(8, 6.9, 12.7),
+    new THREE.Vector3(6.5, 5.9, 10.6),
+    new THREE.Vector3(5.2, 4.9, 8.8),
+    new THREE.Vector3(3.6, 5.5, 7.5),
+    new THREE.Vector3(1.8, 6.5, 7),
+  ]), [mobile]);
+  const lookPath = useMemo(() => [
+    new THREE.Vector3(0, 1.7, 0),
+    new THREE.Vector3(0, 1.15, 0),
+    new THREE.Vector3(0, 0.7, -0.05),
+    new THREE.Vector3(0, 0.35, -0.2),
+    new THREE.Vector3(0, 0.08, -0.4),
+    new THREE.Vector3(0, 0, -0.55),
+  ], []);
 
   useFrame(({ camera, clock }) => {
     const raw = progress.get();
-    const approach = smoothstep(0.15, 0.48, raw);
     const align = smoothstep(0.42, 0.72, raw);
     const finish = smoothstep(0.72, 0.94, raw);
+    const baseReveal = smoothstep(0.02, 0.24, raw);
     const time = clock.getElapsedTime();
 
     boardRefs.current.forEach((board, index) => {
       if (!board) return;
       const spec = specs[index];
-      const floatingY = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.7 + index * 0.68) * 0.16 * (1 - align);
-      const driftX = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.35 + index) * 0.08 * (1 - approach);
-      board.position.x = THREE.MathUtils.lerp(spec.initial[0] + driftX, spec.target[0], approach);
-      board.position.y = THREE.MathUtils.lerp(spec.initial[1] + floatingY, spec.target[1], approach);
-      board.position.z = THREE.MathUtils.lerp(spec.initial[2], spec.target[2], approach);
-      board.rotation.x = THREE.MathUtils.lerp(spec.initialRotation[0], 0, align);
-      board.rotation.y = THREE.MathUtils.lerp(spec.initialRotation[1], 0, align);
-      board.rotation.z = THREE.MathUtils.lerp(spec.initialRotation[2], 0, align);
-      const snap = raw > 0.61 && raw < 0.75 ? Math.sin((raw - 0.61) * Math.PI / 0.14) * 0.08 : 0;
+      const delay = (index / Math.max(boardCount - 1, 1)) * 0.18;
+      const boardApproach = smoothstep(0.2 + delay, 0.54 + delay, raw);
+      const boardAlign = smoothstep(0.35 + delay, 0.66 + delay, raw);
+      const floatingY = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.7 + index * 0.68) * 0.16 * (1 - boardAlign);
+      const driftX = reducedMotion || mobilePerformanceMode ? 0 : Math.sin(time * 0.35 + index) * 0.08 * (1 - boardApproach);
+      board.position.x = THREE.MathUtils.lerp(spec.initial[0] + driftX, spec.target[0], boardApproach);
+      board.position.y = THREE.MathUtils.lerp(spec.initial[1] + floatingY, spec.target[1], boardApproach);
+      board.position.z = THREE.MathUtils.lerp(spec.initial[2], spec.target[2], boardApproach);
+      board.rotation.x = THREE.MathUtils.lerp(spec.initialRotation[0], 0, boardAlign);
+      board.rotation.y = THREE.MathUtils.lerp(spec.initialRotation[1], 0, boardAlign);
+      board.rotation.z = THREE.MathUtils.lerp(spec.initialRotation[2], 0, boardAlign);
+      const snapStart = 0.54 + delay;
+      const snap = raw > snapStart && raw < snapStart + 0.12 ? Math.sin((raw - snapStart) * Math.PI / 0.12) * 0.08 : 0;
       board.position.y += snap * (index % 2 === 0 ? 1 : 0.55);
     });
 
@@ -95,17 +131,23 @@ function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progre
       group.current.rotation.y = THREE.MathUtils.lerp(-0.18, 0.03, align);
       group.current.position.z = THREE.MathUtils.lerp(0, 0.45, finish);
     }
-    if (subfloorMaterial.current) subfloorMaterial.current.opacity = THREE.MathUtils.lerp(0.04, 0.34, align);
-
-    if (raw < 0.5) {
-      const t = smoothstep(0, 0.5, raw);
-      cameraTarget.set(THREE.MathUtils.lerp(9.4, 6.3, t), THREE.MathUtils.lerp(7.6, 5.7, t), THREE.MathUtils.lerp(14.5, 9.5, t));
-      lookTarget.set(0, THREE.MathUtils.lerp(1.7, 0.6, t), 0);
-    } else {
-      const t = smoothstep(0.5, 1, raw);
-      cameraTarget.set(THREE.MathUtils.lerp(6.3, 0.8, t), THREE.MathUtils.lerp(5.7, 6.3, t), THREE.MathUtils.lerp(9.5, 9.2, t));
-      lookTarget.set(0, THREE.MathUtils.lerp(0.6, 0, t), THREE.MathUtils.lerp(0, -0.1, t));
+    if (subfloorMaterial.current) subfloorMaterial.current.opacity = THREE.MathUtils.lerp(0.04, 0.42, baseReveal);
+    if (guideRef.current) {
+      const material = guideRef.current.material;
+      const opacity = baseReveal * (1 - finish) * 0.34;
+      const materials = Array.isArray(material) ? material : [material];
+      materials.forEach((item) => {
+        item.transparent = true;
+        item.opacity = opacity;
+      });
     }
+    if (trimGroup.current) {
+      trimGroup.current.visible = finish > 0.01;
+      trimGroup.current.position.y = THREE.MathUtils.lerp(-0.2, 0.12, finish);
+      trimGroup.current.scale.y = finish;
+    }
+    samplePath(cameraPath, raw, cameraTarget);
+    samplePath(lookPath, raw, lookTarget);
     if (mobilePerformanceMode) camera.position.copy(cameraTarget);
     else camera.position.lerp(cameraTarget, 0.06);
     camera.lookAt(lookTarget);
@@ -130,10 +172,19 @@ function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progre
           </RoundedBox>
         ))}
       </group>
+      <gridHelper ref={guideRef} args={[mobile ? 8.2 : 14.2, mobile ? 8 : 14, "#d28759", "#6f665b"]} position={[0, 0.045, -0.2]} />
       <mesh position={[0, -0.035, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow={!mobilePerformanceMode}>
         <planeGeometry args={[mobile ? 10.5 : 15.5, 8.2]} />
         <meshStandardMaterial ref={subfloorMaterial} color="#7f766a" transparent opacity={0.04} roughness={0.9} />
       </mesh>
+      <group ref={trimGroup} visible={false}>
+        <RoundedBox args={[mobile ? 8.1 : 13.5, 0.13, 0.12]} radius={0.025} smoothness={2} position={[0.15, 0, mobile ? -2.42 : -2.44]}>
+          <meshStandardMaterial color="#ead2b7" roughness={0.6} />
+        </RoundedBox>
+        <RoundedBox args={[mobile ? 8.1 : 13.5, 0.13, 0.12]} radius={0.025} smoothness={2} position={[0.15, 0, mobile ? 0.96 : 1.8]}>
+          <meshStandardMaterial color="#ead2b7" roughness={0.6} />
+        </RoundedBox>
+      </group>
       {mobilePerformanceMode ? null : <ContactShadows position={[0, 0.02, 0]} opacity={0.42} scale={18} blur={2.2} far={5} />}
     </>
   );
