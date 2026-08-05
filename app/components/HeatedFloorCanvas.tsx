@@ -39,13 +39,13 @@ function HeatedFloorModel({ temperature, reducedMotion, mobilePerformanceMode }:
     clonedTexture.wrapT = THREE.RepeatWrapping;
     clonedTexture.repeat.set(2.8, 1);
     clonedTexture.colorSpace = THREE.SRGBColorSpace;
-    clonedTexture.anisotropy = 4;
+    clonedTexture.anisotropy = mobilePerformanceMode ? 8 : 4;
     clonedTexture.needsUpdate = true;
     return clonedTexture;
-  }, [sourceTexture]);
+  }, [mobilePerformanceMode, sourceTexture]);
   const cableCurve = useMemo(() => createSerpentineCurve(), []);
-  const cableGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, mobilePerformanceMode ? 96 : 220, 0.085, mobilePerformanceMode ? 6 : 10, false), [cableCurve, mobilePerformanceMode]);
-  const glowGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, mobilePerformanceMode ? 96 : 220, 0.15, mobilePerformanceMode ? 5 : 8, false), [cableCurve, mobilePerformanceMode]);
+  const cableGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, mobilePerformanceMode ? 128 : 220, 0.085, mobilePerformanceMode ? 8 : 10, false), [cableCurve, mobilePerformanceMode]);
+  const glowGeometry = useMemo(() => new THREE.TubeGeometry(cableCurve, mobilePerformanceMode ? 128 : 220, 0.15, mobilePerformanceMode ? 6 : 8, false), [cableCurve, mobilePerformanceMode]);
   const neutralColor = useMemo(() => new THREE.Color("#5b5c59"), []);
   const hotColor = useMemo(() => new THREE.Color("#ff4b22"), []);
   const liveColor = useMemo(() => new THREE.Color(), []);
@@ -106,7 +106,7 @@ function HeatedFloorModel({ temperature, reducedMotion, mobilePerformanceMode }:
   }), []);
 
   return (
-    <group ref={group} scale={mobile ? 0.73 : 0.94} position={[mobile ? 0.25 : 0.6, 0, 0]}>
+    <group ref={group} scale={mobile ? 0.8 : 0.94} position={[mobile ? 0.25 : 0.6, 0, 0]}>
       <RoundedBox args={[12.9, 0.58, 5.7]} radius={0.16} smoothness={3} position={[0, -1.28, 0]} receiveShadow={!mobilePerformanceMode} castShadow={!mobilePerformanceMode}>
         <meshStandardMaterial color="#9b9388" roughness={0.93} metalness={0.01} />
       </RoundedBox>
@@ -141,7 +141,11 @@ function HeatedFloorModel({ temperature, reducedMotion, mobilePerformanceMode }:
         ))}
       </group>
 
-      {mobilePerformanceMode ? null : <ContactShadows position={[0, -1.58, 0]} opacity={0.45} scale={18} blur={2.6} far={5} />}
+      {mobilePerformanceMode ? (
+        <ContactShadows position={[0, -1.58, 0]} opacity={0.3} scale={15} blur={2.2} far={5} resolution={256} frames={1} />
+      ) : (
+        <ContactShadows position={[0, -1.58, 0]} opacity={0.45} scale={18} blur={2.6} far={5} />
+      )}
     </group>
   );
 }
@@ -150,10 +154,10 @@ export function HeatedFloorCanvas({ temperature, reducedMotion, mobilePerformanc
   return (
     <Canvas
       shadows={!mobilePerformanceMode}
-      dpr={mobilePerformanceMode ? 1 : [1, 1.35]}
+      dpr={mobilePerformanceMode ? [1.2, 1.5] : [1, 1.35]}
       frameloop={mobilePerformanceMode ? "demand" : "always"}
       camera={{ position: [10.8, 7.4, 12.5], fov: 34, near: 0.1, far: 70 }}
-      gl={{ antialias: !mobilePerformanceMode, alpha: true, powerPreference: "high-performance" }}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       <ambientLight intensity={0.75} />
       <hemisphereLight args={["#ffe9cf", "#171513", 1.45]} />

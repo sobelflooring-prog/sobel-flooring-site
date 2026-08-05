@@ -31,11 +31,12 @@ test("server-renders the Sobel Flooring landing page", async () => {
 });
 
 test("keeps the 3D stories, official estimator rules and motion safeguards in source", async () => {
-  const [calculator, config, story, scene, heatedExperience, heatedScene, about, reviews, landing, mobilePerformance, css, packageJson, socialImage, logo, headerLogo, texture] = await Promise.all([
+  const [calculator, config, story, scene, heroScene, heatedExperience, heatedScene, about, reviews, landing, mobilePerformance, css, packageJson, socialImage, logo, headerLogo, texture] = await Promise.all([
     readFile(new URL("../app/components/EstimateCalculator.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ScrollFloorExperience.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/FloorSceneCanvas.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/HeroSceneCanvas.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/HeatedFloorExperience.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/HeatedFloorCanvas.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/AboutSection.tsx", import.meta.url), "utf8"),
@@ -87,6 +88,13 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(mobilePerformance, /max-width: 900px/);
   assert.match(scene, /frameloop=\{mobilePerformanceMode \? "demand" : "always"\}/);
   assert.match(heatedScene, /frameloop=\{mobilePerformanceMode \? "demand" : "always"\}/);
+  assert.match(heroScene, /mobilePerformanceMode \? \[1\.25, 1\.6\]/);
+  assert.match(scene, /mobilePerformanceMode \? \[1\.15, 1\.45\]/);
+  assert.match(heatedScene, /mobilePerformanceMode \? \[1\.2, 1\.5\]/);
+  assert.match(heatedScene, /mobilePerformanceMode \? 8 : 4/);
+  assert.match(heroScene, /antialias: true/);
+  assert.match(scene, /antialias: true/);
+  assert.match(heatedScene, /antialias: true/);
   assert.match(css, /\.floor-experience\s*\{[^}]*height:\s*320vh/s);
   assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.floor-experience\s*\{\s*height:\s*235vh/);
   assert.match(css, /@media \(max-width: 380px\)/);

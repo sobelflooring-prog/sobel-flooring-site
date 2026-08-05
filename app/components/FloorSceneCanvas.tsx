@@ -49,7 +49,7 @@ function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progre
   const backgroundRef = useRef<THREE.Color>(null);
   const { invalidate, size } = useThree();
   const mobile = mobilePerformanceMode || size.width < 720;
-  const boardCount = mobilePerformanceMode ? 8 : mobile ? 10 : 15;
+  const boardCount = mobilePerformanceMode ? 10 : mobile ? 10 : 15;
 
   useEffect(() => {
     if (!mobilePerformanceMode) return;
@@ -167,8 +167,8 @@ function StoryScene({ progress, reducedMotion, mobilePerformanceMode }: { progre
       <spotLight position={[2, 10, -7]} angle={0.48} penumbra={0.85} intensity={13} distance={26} color="#fff2dd" />
       <group ref={group}>
         {specs.map((spec, index) => (
-          <RoundedBox key={index} ref={(mesh) => { boardRefs.current[index] = mesh; }} args={[mobile ? 3.35 : 4.05, 0.18, 0.76]} radius={0.04} smoothness={2} position={spec.initial} rotation={spec.initialRotation} castShadow={!mobilePerformanceMode} receiveShadow={!mobilePerformanceMode}>
-            <meshStandardMaterial color={spec.color} roughness={0.48} metalness={0.035} />
+          <RoundedBox key={index} ref={(mesh) => { boardRefs.current[index] = mesh; }} args={[mobile ? 3.35 : 4.05, 0.18, 0.76]} radius={0.04} smoothness={mobilePerformanceMode ? 3 : 2} position={spec.initial} rotation={spec.initialRotation} castShadow={!mobilePerformanceMode} receiveShadow={!mobilePerformanceMode}>
+            <meshStandardMaterial color={spec.color} roughness={mobilePerformanceMode ? 0.42 : 0.48} metalness={0.035} />
           </RoundedBox>
         ))}
       </group>
@@ -194,10 +194,10 @@ export function FloorSceneCanvas({ progress, reducedMotion, mobilePerformanceMod
   return (
     <Canvas
       shadows={!mobilePerformanceMode}
-      dpr={mobilePerformanceMode ? 1 : [1, 1.45]}
+      dpr={mobilePerformanceMode ? [1.15, 1.45] : [1, 1.45]}
       frameloop={mobilePerformanceMode ? "demand" : "always"}
       camera={{ position: [9.4, 7.6, 14.5], fov: 36, near: 0.1, far: 70 }}
-      gl={{ antialias: !mobilePerformanceMode, alpha: false, powerPreference: "high-performance" }}
+      gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
     >
       <StoryScene progress={progress} reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
     </Canvas>

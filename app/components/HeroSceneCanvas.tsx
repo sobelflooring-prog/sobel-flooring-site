@@ -23,12 +23,14 @@ function HeroPlank({
   color,
   phase,
   reducedMotion,
+  mobileQuality,
 }: {
   position: readonly [number, number, number];
   rotation: readonly [number, number, number];
   color: string;
   phase: number;
   reducedMotion: boolean;
+  mobileQuality: boolean;
 }) {
   const ref = useRef<THREE.Mesh>(null);
 
@@ -40,8 +42,8 @@ function HeroPlank({
   });
 
   return (
-    <RoundedBox ref={ref} args={[3.7, 0.16, 0.74]} radius={0.045} smoothness={2} position={[...position]} rotation={[...rotation]} castShadow receiveShadow>
-      <meshStandardMaterial color={color} roughness={0.55} metalness={0.04} />
+    <RoundedBox ref={ref} args={[3.7, 0.16, 0.74]} radius={0.045} smoothness={mobileQuality ? 3 : 2} position={[...position]} rotation={[...rotation]} castShadow receiveShadow>
+      <meshStandardMaterial color={color} roughness={mobileQuality ? 0.48 : 0.55} metalness={0.04} />
     </RoundedBox>
   );
 }
@@ -82,7 +84,8 @@ function Scene({ reducedMotion, mobilePerformanceMode }: { reducedMotion: boolea
     <>
       <color attach="background" args={["#e8e1d5"]} />
       <fog attach="fog" args={["#e8e1d5", 13, 24]} />
-      <ambientLight intensity={1.25} />
+      <ambientLight intensity={mobilePerformanceMode ? 0.95 : 1.25} />
+      <hemisphereLight args={["#fff7e8", "#8a6d55", mobilePerformanceMode ? 0.72 : 0.38]} />
       <directionalLight position={[5, 9, 7]} intensity={2.7} color="#fff3df" castShadow={!mobilePerformanceMode} shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.00015} />
       <pointLight position={[-5, 2, 4]} intensity={13} distance={13} color="#d76f38" />
       <group
@@ -91,9 +94,13 @@ function Scene({ reducedMotion, mobilePerformanceMode }: { reducedMotion: boolea
         rotation={mobilePerformanceMode ? [0.06, -0.32, 0] : [0, 0, 0]}
         scale={mobilePerformanceMode ? 0.7 : 1}
       >
-        {heroPlanks.map((plank, index) => <HeroPlank key={index} {...plank} reducedMotion={reducedMotion || mobilePerformanceMode} />)}
+        {heroPlanks.map((plank, index) => <HeroPlank key={index} {...plank} reducedMotion={reducedMotion || mobilePerformanceMode} mobileQuality={mobilePerformanceMode} />)}
       </group>
-      {mobilePerformanceMode ? null : <ContactShadows position={[0, -2.05, 0]} opacity={0.3} scale={15} blur={2.8} far={8} />}
+      {mobilePerformanceMode ? (
+        <ContactShadows position={[0, -2.05, 0]} opacity={0.22} scale={13} blur={2.1} far={7} resolution={256} frames={1} />
+      ) : (
+        <ContactShadows position={[0, -2.05, 0]} opacity={0.3} scale={15} blur={2.8} far={8} />
+      )}
     </>
   );
 }
@@ -103,10 +110,10 @@ export function HeroSceneCanvas({ reducedMotion, mobilePerformanceMode }: { redu
     <Canvas
       key={mobilePerformanceMode ? "mobile" : "desktop"}
       shadows={!mobilePerformanceMode}
-      dpr={mobilePerformanceMode ? 1 : [1, 1.5]}
+      dpr={mobilePerformanceMode ? [1.25, 1.6] : [1, 1.5]}
       frameloop={mobilePerformanceMode ? "demand" : "always"}
       camera={{ position: mobilePerformanceMode ? [5.8, 5.2, 13.8] : [7.8, 4.8, 11.8], fov: mobilePerformanceMode ? 42 : 34, near: 0.1, far: 60 }}
-      gl={{ antialias: !mobilePerformanceMode, alpha: false, powerPreference: "high-performance" }}
+      gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
     >
       <Scene reducedMotion={reducedMotion} mobilePerformanceMode={mobilePerformanceMode} />
     </Canvas>
