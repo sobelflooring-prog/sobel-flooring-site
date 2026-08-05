@@ -62,6 +62,8 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(story, /ScrollFloorExperience/);
   assert.match(story, /JOURNEY_STAGES/);
   assert.match(story, /Paginação/);
+  assert.match(story, /at === 0 \? \[0, 0\.14\]/);
+  assert.match(story, /at === 1 \? \[0\.86, 1\]/);
   assert.match(scene, /RoundedBox/);
   assert.match(scene, /progress\.get\(\)/);
   assert.match(scene, /camera\.position\.lerp/);

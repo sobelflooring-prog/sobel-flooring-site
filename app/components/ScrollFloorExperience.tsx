@@ -55,8 +55,11 @@ function PhaseCopy({
 }
 
 function JourneyMarker({ progress, index, label, at }: { progress: MotionValue<number>; index: string; label: string; at: number }) {
-  const opacity = useTransform(progress, [at - 0.14, at, at + 0.14], [0.34, 1, 0.34]);
-  const scale = useTransform(progress, [at - 0.14, at, at + 0.14], [0.86, 1, 0.86]);
+  const input = at === 0 ? [0, 0.14] : at === 1 ? [0.86, 1] : [at - 0.14, at, at + 0.14];
+  const opacityOutput = at === 0 ? [1, 0.34] : at === 1 ? [0.34, 1] : [0.34, 1, 0.34];
+  const scaleOutput = at === 0 ? [1, 0.86] : at === 1 ? [0.86, 1] : [0.86, 1, 0.86];
+  const opacity = useTransform(progress, input, opacityOutput);
+  const scale = useTransform(progress, input, scaleOutput);
 
   return (
     <motion.li style={{ opacity, scale }}>
