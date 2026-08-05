@@ -26,6 +26,7 @@ test("server-renders the Sobel Flooring landing page", async () => {
   assert.match(html, /Seu ambiente muda/);
   assert.match(html, /Quem somos/);
   assert.match(html, /Piso aquecido/);
+  assert.match(html, /trabalharemos em breve/i);
   assert.match(html, /Calcular estimativa/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
@@ -85,6 +86,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(landing, /sobel-header-logo\.webp/);
   assert.match(landing, /aria-controls="mobile-navigation"/);
   assert.match(landing, /aria-expanded=\{menuOpen\}/);
+  assert.ok(landing.indexOf("<AboutSection />") < landing.indexOf("<ScrollFloorExperience />"));
   assert.match(mobilePerformance, /max-width: 900px/);
   assert.match(scene, /frameloop=\{mobilePerformanceMode \? "demand" : "always"\}/);
   assert.match(heatedScene, /frameloop=\{mobilePerformanceMode \? "demand" : "always"\}/);

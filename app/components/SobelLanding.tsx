@@ -89,8 +89,8 @@ export function SobelLanding() {
     <main>
       <Header />
       <Hero3D />
-      <ScrollFloorExperience />
       <AboutSection />
+      <ScrollFloorExperience />
       <HeatedFloorExperience />
       <EstimateCalculator />
       <ReviewsSection />

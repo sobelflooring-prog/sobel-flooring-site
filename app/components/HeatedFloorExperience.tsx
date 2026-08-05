@@ -23,12 +23,12 @@ export function HeatedFloorExperience() {
     <section id="piso-aquecido" ref={sectionRef} className="heated-section">
       <div className="heated-heading">
         <div>
-          <p className="section-kicker">Tecnologia sob o acabamento</p>
-          <h2>Veja o calor percorrer cada camada.</h2>
+          <p className="section-kicker">Novidade em preparação</p>
+          <h2>Piso aquecido: trabalharemos em breve.</h2>
         </div>
         <p>
-          Explore em 3D como o piso vinílico, o cabo de aquecimento e o contrapiso trabalham juntos.
-          Ajuste o termostato e acompanhe a resposta do sistema em tempo real.
+          Em breve, a Sobel Flooring também trabalhará com soluções em piso aquecido.
+          Esta experiência 3D apresenta o sistema que está em preparação e ainda não está disponível para contratação.
         </p>
       </div>
 
