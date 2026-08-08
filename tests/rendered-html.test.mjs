@@ -60,7 +60,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(calculator, /Este orçamento é apenas uma estimativa inicial e não substitui um orçamento oficial\./);
   assert.match(calculator, /Solicitar orçamento oficial pelo WhatsApp/);
   assert.match(calculator, /encodeURIComponent\(whatsappMessage\)/);
-  assert.match(calculator, /instagram\.com\/sobelflooring\//);
+  assert.match(calculator, /instagram\.com\/gruposobel\//);
   assert.match(story, /ScrollFloorExperience/);
   assert.match(story, /JOURNEY_STAGES/);
   assert.match(story, /Paginação/);
@@ -81,8 +81,8 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(about, /7 dias úteis/);
   assert.match(reviews, /Consultar no Google/);
   assert.match(reviews, /Avaliar empresa/);
-  assert.match(reviews, /google\.com\/search\?q=Sobel\+Flooring/);
-  assert.match(reviews, /Sobel\+Flooring\+avalia%C3%A7%C3%B5es/);
+  assert.match(reviews, /google\.com\/search\?q=Grupo\+Sobel/);
+  assert.match(reviews, /Grupo\+Sobel\+avalia%C3%A7%C3%B5es/);
   assert.match(landing, /grupo-sobel-logo\.jpeg/);
   assert.match(landing, /Grupo Sobel/);
   assert.match(landing, /aria-controls="mobile-navigation"/);

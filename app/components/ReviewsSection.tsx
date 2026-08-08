@@ -18,8 +18,8 @@ const reviews = [
   },
 ];
 
-const googleSearchUrl = "https://www.google.com/search?q=Sobel+Flooring";
-const googleReviewSearchUrl = "https://www.google.com/search?q=Sobel+Flooring+avalia%C3%A7%C3%B5es";
+const googleSearchUrl = "https://www.google.com/search?q=Grupo+Sobel";
+const googleReviewSearchUrl = "https://www.google.com/search?q=Grupo+Sobel+avalia%C3%A7%C3%B5es";
 
 export function ReviewsSection() {
   return (
