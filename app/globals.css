@@ -90,6 +90,25 @@ a { color: inherit; text-decoration: none; }
 .brand { display: inline-flex; align-items: center; gap: .72rem; }
 .brand-official { display: block; width: 8.7rem; line-height: 0; }
 .brand-official img { display: block; width: 100%; height: auto; mix-blend-mode: multiply; }
+.brand-grupo-sobel {
+  display: block;
+  width: 9.25rem;
+  height: 2.62rem;
+  overflow: hidden;
+  border-radius: .34rem;
+  background: white;
+  line-height: 0;
+}
+.brand-grupo-sobel img {
+  position: relative;
+  left: 50%;
+  display: block;
+  width: 12.32rem;
+  max-width: none;
+  height: auto;
+  transform: translateX(-50%) translateY(-6.25rem);
+  mix-blend-mode: normal;
+}
 .brand-symbol {
   position: relative;
   display: grid;
@@ -323,6 +342,8 @@ a { color: inherit; text-decoration: none; }
 .final-cta > div { display: flex; justify-content: center; flex-wrap: wrap; gap: .7rem; margin-top: 2rem; }
 
 .site-footer { display: grid; grid-template-columns: .8fr 1fr 1.2fr; align-items: end; gap: 3rem; background: #171715; padding: 4rem max(1.75rem, calc((100vw - 1180px) / 2)); color: white; }
+.site-footer .brand-grupo-sobel { width: 11rem; height: 3.1rem; border-radius: .42rem; }
+.site-footer .brand-grupo-sobel img { width: 14.65rem; transform: translateX(-50%) translateY(-7.56rem); }
 .site-footer > div p, .site-footer > p { margin: 0; color: rgba(255,255,255,.38); font-size: .68rem; line-height: 1.6; }
 .site-footer > div a { display: block; margin-top: .5rem; font-size: 1rem; font-weight: 650; }
 .site-footer > p { text-align: right; }
@@ -395,6 +416,10 @@ a { color: inherit; text-decoration: none; }
   .site-header { top: .6rem; width: calc(100% - 1.2rem); min-height: 3.7rem; }
   .brand-symbol { width: 2.1rem; height: 2.1rem; }
   .brand-official { width: 7.6rem; }
+  .brand-grupo-sobel { width: 7.6rem; height: 2.2rem; }
+  .brand-grupo-sobel img { width: 10.13rem; transform: translateX(-50%) translateY(-5.3rem); }
+  .site-footer .brand-grupo-sobel { width: 10.5rem; height: 2.95rem; }
+  .site-footer .brand-grupo-sobel img { width: 14rem; transform: translateX(-50%) translateY(-7.2rem); }
   .header-cta { padding: .68rem .9rem; }
   .hero3d { min-height: 100svh; }
   .hero3d-content { padding: 7rem 1.15rem 4rem; }
@@ -469,6 +494,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 380px) {
   .site-header { padding-left: .8rem; }
   .brand-official { width: 7.9rem; }
+  .brand-grupo-sobel { width: 7.35rem; }
   .header-cta { display: none; }
   .menu-toggle { margin-left: auto; }
   .hero3d-content { padding-right: 1rem; padding-left: 1rem; }

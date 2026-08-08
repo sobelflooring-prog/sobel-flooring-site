@@ -32,7 +32,7 @@ test("server-renders the Sobel Flooring landing page", async () => {
 });
 
 test("keeps the 3D stories, official estimator rules and motion safeguards in source", async () => {
-  const [calculator, config, story, scene, heroScene, heatedExperience, heatedScene, about, reviews, landing, mobilePerformance, css, packageJson, socialImage, logo, headerLogo, texture] = await Promise.all([
+  const [calculator, config, story, scene, heroScene, heatedExperience, heatedScene, about, reviews, landing, mobilePerformance, css, packageJson, socialImage, logo, grupoLogo, texture] = await Promise.all([
     readFile(new URL("../app/components/EstimateCalculator.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ScrollFloorExperience.tsx", import.meta.url), "utf8"),
@@ -48,7 +48,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     stat(new URL("../public/og-heated.png", import.meta.url)),
     stat(new URL("../public/sobel-flooring-logo.webp", import.meta.url)),
-    stat(new URL("../public/sobel-header-logo.webp", import.meta.url)),
+    stat(new URL("../public/grupo-sobel-logo.jpeg", import.meta.url)),
     stat(new URL("../public/vinyl-grain.jpg", import.meta.url)),
   ]);
 
@@ -83,7 +83,8 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(reviews, /Avaliar empresa/);
   assert.match(reviews, /google\.com\/search\?q=Sobel\+Flooring/);
   assert.match(reviews, /Sobel\+Flooring\+avalia%C3%A7%C3%B5es/);
-  assert.match(landing, /sobel-header-logo\.webp/);
+  assert.match(landing, /grupo-sobel-logo\.jpeg/);
+  assert.match(landing, /Grupo Sobel/);
   assert.match(landing, /aria-controls="mobile-navigation"/);
   assert.match(landing, /aria-expanded=\{menuOpen\}/);
   assert.ok(landing.indexOf("<AboutSection />") < landing.indexOf("<ScrollFloorExperience />"));
@@ -108,7 +109,7 @@ test("keeps the 3D stories, official estimator rules and motion safeguards in so
   assert.match(packageJson, /"@react-three\/fiber"/);
   assert.ok(socialImage.size > 100_000);
   assert.ok(logo.size > 10_000);
-  assert.ok(headerLogo.size > 5_000);
+  assert.ok(grupoLogo.size > 100_000);
   assert.ok(texture.size > 10_000);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 

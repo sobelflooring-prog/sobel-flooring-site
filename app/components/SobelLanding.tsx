@@ -15,19 +15,14 @@ import { WHATSAPP_URL } from "./site-config";
 import { TrustSection } from "./TrustSection";
 
 function Brand({ light = false }: { light?: boolean }) {
-  if (!light) {
-    return (
-      <a href="#inicio" className="brand brand-official" aria-label="Sobel Flooring — início">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sobel-header-logo.webp" alt="Sobel Flooring" width={680} height={152} />
-      </a>
-    );
-  }
-
   return (
-    <a href="#inicio" className="brand brand-light" aria-label="Sobel Flooring — início">
-      <span className="brand-symbol">S</span>
-      <span><strong>SOBEL</strong><small>FLOORING</small></span>
+    <a
+      href="#inicio"
+      className={`brand brand-grupo-sobel${light ? " brand-light" : " brand-official"}`}
+      aria-label="Grupo Sobel — início"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/grupo-sobel-logo.jpeg" alt="Grupo Sobel" width={1254} height={1254} />
     </a>
   );
 }
